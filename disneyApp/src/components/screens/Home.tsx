@@ -1,13 +1,37 @@
-import React from "react";
-import {StyleSheet, Text, View} from "react-native";
-import {StatusBar} from "expo-status-bar";
+import React, {useEffect, useState} from "react";
+import {Button, SafeAreaView, ScrollView, StyleSheet, Text} from "react-native";
+import {useNavigation} from "@react-navigation/native";
+import {StackNavigationProp} from "@react-navigation/stack";
+import {StackParamList} from "./Navigation";
+import {CHARACTER_SCREEN} from "./routes";
+import {getCharacters} from "../../http/disneyAPI/disneyApi";
 
-export default function Home() {
+
+type homeScreenProp = StackNavigationProp<StackParamList, `Home`>;
+
+
+export default function Home({}) {
+    const [text, setText] = useState("")
+    const navigation = useNavigation<homeScreenProp>()
+    useEffect(() => {
+        getCharacters(1, 10).then(data => {
+            setText(data.json)
+        }).catch(error => console.log(error.response.data))
+    }, [])
     return (
-        <View style={styles.container}>
-            <Text>Open up App.tsx to start working on your app!</Text>
-            <StatusBar style="auto" />
-        </View>
+        <SafeAreaView style={styles.container}>
+            <ScrollView style={styles.scrollView}>
+                <Text style={{padding: 10}}>{text}</Text>
+
+                <Button title={"GO TO CHARACTER"}
+                        onPress={() => {
+                            navigation.navigate(CHARACTER_SCREEN)
+                        }
+                        }
+                />
+            </ScrollView>
+        </SafeAreaView>
+
     )
 }
 
@@ -18,4 +42,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    scrollView: {
+        backgroundColor: 'pink',
+        marginHorizontal: 20,
+    },
 });
+

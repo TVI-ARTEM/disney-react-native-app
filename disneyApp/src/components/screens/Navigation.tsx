@@ -1,15 +1,25 @@
 import {createStackNavigator} from '@react-navigation/stack';
-import Home from "./Home";
 import {NavigationContainer} from "@react-navigation/native";
+import Home from "./Home";
+import Character from "./Character";
+import {CHARACTER_SCREEN, HOME_SCREEN} from "./routes";
 
-const Stack = createStackNavigator();
+
+export type StackParamList = {
+    Home: undefined;
+    Character: undefined;
+};
+
+const Stack = createStackNavigator<StackParamList>();
 
 export default function Navigation() {
+
+
     return (
         <NavigationContainer>
             <Stack.Navigator>
-                <Stack.Screen name="Home" component={Home}/>
-                <Stack.Screen name="Character" component={Home}/>
+                <Stack.Screen name={HOME_SCREEN} component={Home} options={{headerShown: false}}/>
+                <Stack.Screen name={CHARACTER_SCREEN} component={Character} options={{headerShown: false}}/>
             </Stack.Navigator>
         </NavigationContainer>
     );
