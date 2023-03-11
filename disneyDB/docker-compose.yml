@@ -1,0 +1,15 @@
+services:
+  painter_db:
+    container_name: disney_db
+    image: postgres:14.5
+    restart: always
+    environment:
+      POSTGRES_DB: "disney_db"
+      POSTGRES_USER: "disney_user"
+      POSTGRES_PASSWORD: "disney_password"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ./docker/db/scripts/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql
+      - ./dz:/var/lib/postgresql/data
+    ports:
+      - "6003:5432"
