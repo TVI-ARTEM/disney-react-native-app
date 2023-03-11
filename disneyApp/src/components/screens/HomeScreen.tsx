@@ -8,19 +8,19 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    SafeAreaView,
     View,
 } from "react-native";
-
-import {useNavigation} from "@react-navigation/native";
+import SafeAreaView from "react-native-safe-area-view";
+import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
 import {StackNavigationProp} from "@react-navigation/stack";
 import {StackParamList} from "./Navigation";
-import {getCharacters} from "../../http/disneyAPI/disneyApi";
+import {getCharacters, getFilteredCharacter} from "../../http/disneyAPI/disneyApi";
 import {Character} from "../../models/character";
-import {CHARACTER_SCREEN} from "./routes";
+import {CHARACTER_SCREEN, HOME_SCREEN} from "./routes";
 
 
 type homeScreenProp = StackNavigationProp<StackParamList, `Home`>;
+type homeScreenRouteProp = RouteProp<StackParamList, `Home`>;
 
 type ItemProps = { id: number, name: string, imageUrl: string, appearance: string[] }
 
@@ -32,8 +32,10 @@ export default function HomeScreen({}) {
     const [pageSize, setPageSize] = useState(12)
     const [count, setCount] = useState(0)
     const [downloading, setDownloading] = useState(true)
+    const [specificCharacter, setSpecificCharacter] = useState(false)
     const navigation = useNavigation<homeScreenProp>()
-
+    const route = useRoute<homeScreenRouteProp>()
+    const {name} = route.params
 
     const Item = ({id, name, imageUrl, appearance}: ItemProps) => (
         <View style={styles.item}>
@@ -67,8 +69,36 @@ export default function HomeScreen({}) {
             setCharacters(toSet(characters, data.data))
             setCount(data.count)
             setDownloading(false)
+            setSpecificCharacter(false)
         }).catch(error => console.log(error.response.data))
     }, [page, pageSize])
+
+
+    useEffect(() => {
+        setDownloading(true)
+        if (name !== "") {
+            getFilteredCharacter(name).then(data => {
+                if (data.count === 0) {
+                    getCharacters(page, pageSize).then(data => {
+                        setCharacters(data.data)
+                        setCount(data.count)
+                        setDownloading(false)
+                        setSpecificCharacter(false)
+                    }).catch(error => console.log(error.response.data))
+                } else {
+                    setCharacters(data.data)
+                    setSpecificCharacter(true)
+                    setDownloading(false)
+                }
+            }).catch(error => {
+                console.log(error.response.data)
+                navigation.navigate(HOME_SCREEN, {name: ""})
+            })
+        } else {
+            setCharacters([])
+            setPage(1)
+        }
+    }, [name])
 
     return (
         <SafeAreaView style={styles.container}>
@@ -87,7 +117,7 @@ export default function HomeScreen({}) {
                               <>
 
                                   {
-                                      count > page && !downloading && (
+                                      count > page && !downloading && !specificCharacter && (
                                           <View style={{flex: 1, alignItems: "center", margin: 10}}>
                                               <View style={{width: "50%"}}>
                                                   <Button
@@ -120,7 +150,6 @@ export default function HomeScreen({}) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        marginTop: StatusBar.currentHeight || 0,
     },
     item: {
         margin: 5,

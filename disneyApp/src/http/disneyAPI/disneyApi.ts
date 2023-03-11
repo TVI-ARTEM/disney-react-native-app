@@ -1,4 +1,4 @@
-import {BASE_URL_CHARACTERS, BASE_URL_SPECIFIC_CHARACTER} from "./routes";
+import {BASE_URL_CHARACTERS, BASE_URL_FILTERED_CHARACTER, BASE_URL_SPECIFIC_CHARACTER} from "./routes";
 import axios from 'axios';
 import {Character} from "../../models/character";
 
@@ -23,5 +23,17 @@ export const getCharacter = async (id: number) => {
     return data as Character
 }
 
+
+export const getFilteredCharacter = async (name: string) => {
+    console.log('get-characters')
+    const paramName = name.replace(" ", "%20")
+    const {data} = await axios.get(BASE_URL_FILTERED_CHARACTER, {params: {name: paramName}})
+    const characters = (data.data as []).map(it => it as Character)
+
+    return {
+        data: characters,
+        count: data.data.count
+    }
+}
 
 

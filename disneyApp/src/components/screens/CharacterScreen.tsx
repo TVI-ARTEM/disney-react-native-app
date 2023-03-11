@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {
     ActivityIndicator,
-    SafeAreaView,
     Image,
     ImageBackground,
     ScrollView,
@@ -17,6 +16,7 @@ import {HOME_SCREEN} from "./routes";
 import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
 import {Character} from "../../models/character";
 import {getCharacter} from "../../http/disneyAPI/disneyApi";
+import SafeAreaView from "react-native-safe-area-view";
 // import {FAB, Icon} from "react-native-elements";
 
 
@@ -30,13 +30,14 @@ export default function CharacterScreen() {
     const {id} = route.params
     const [character, setCharacter] = useState<Character>({} as Character)
     const [initialized, setInitialized] = useState(false)
+    const name = ""
     useEffect(() => {
         getCharacter(id).then(data => {
             setCharacter(data)
             setInitialized(true)
         }).catch(error => {
             console.log(error.response.data)
-            navigation.navigate(HOME_SCREEN)
+            navigation.navigate(HOME_SCREEN, {name})
         })
     }, [])
     return (
@@ -49,7 +50,7 @@ export default function CharacterScreen() {
                     </View>
                     {
                         initialized && (
-                            <View style={{alignItems: "flex-start", flex: 1, margin: 5}}>
+                            <View style={{alignItems: "flex-start", flex: 1, margin: 5, marginTop: 100}}>
 
                                 <ScrollView>
                                     <Text>
@@ -145,7 +146,6 @@ export default function CharacterScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        marginTop: StatusBar.currentHeight || 0,
     },
     item: {
         flex: 1,
