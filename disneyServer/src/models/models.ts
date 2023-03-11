@@ -10,6 +10,35 @@ export const User = sequelize.define('user', {
 })
 
 
+export const Group = sequelize.define('group', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    name: {type: DataTypes.STRING, unique: true}
+})
+
+export const GroupCharacters = sequelize.define('groupUser', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    characterId: {type: DataTypes.INTEGER}
+})
+
+
+export const Comment = sequelize.define('comment', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    characterId: {type: DataTypes.INTEGER},
+    comment: {type: DataTypes.STRING}
+})
+
+User.hasMany(Group)
+Group.belongsTo(User)
+
+Group.hasMany(GroupCharacters)
+GroupCharacters.belongsTo(Group)
+
+User.hasMany(Comment)
+Comment.belongsTo(User)
+
 module.exports = {
     User,
+    Group,
+    GroupUser: GroupCharacters,
+    Comment
 }
