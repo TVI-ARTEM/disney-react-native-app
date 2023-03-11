@@ -1,12 +1,14 @@
-import {BASE_URL_CHARACTERS} from "./routes";
+import {BASE_URL_CHARACTERS, BASE_URL_SPECIFIC_CHARACTER} from "./routes";
 import axios from 'axios';
+import {Character} from "../../models/character";
 
 export const getCharacters = async (page: number, pageSize: number) => {
-    console.log('login')
+    console.log('get-characters')
     const {data} = await axios.get(BASE_URL_CHARACTERS, {params: {page: page, pageSize: pageSize}})
+    const characters = (data.data as []).map(it => it as Character)
 
     return {
-        data: data.data,
+        data: characters,
         count: data.count,
         totalPages: data.totalPages,
         previousPage: data.previousPage,
@@ -14,4 +16,12 @@ export const getCharacters = async (page: number, pageSize: number) => {
         json: JSON.stringify(data)
     }
 }
+
+export const getCharacter = async (id: number) => {
+    console.log('get-characters')
+    const {data} = await axios.get(BASE_URL_SPECIFIC_CHARACTER + id)
+    return data as Character
+}
+
+
 
