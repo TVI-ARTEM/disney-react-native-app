@@ -8,6 +8,7 @@ const router = require('./routes/index')
 const errorHandler = require('./middleware/ErrorHandlingMiddleware')
 
 const PORT = process.env.PORT || 5000
+const hostname = process.env.HOSTNAME || "0.0.0.0"
 
 const app = express()
 const server = require('http').createServer(app)
@@ -23,7 +24,7 @@ const start = async () => {
         await sequelize.sync()
 
         server.listen(
-            PORT, () => console.log(`Server is working on port: ${PORT}`)
+            PORT, hostname, () => console.log(`Server is working on port: ${PORT}, hostname: ${hostname}`)
         )
     } catch (e) {
         console.log(e)
