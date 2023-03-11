@@ -1,8 +1,6 @@
 import axios from "axios";
 
-import Cookies from 'universal-cookie';
 
-const cookie = new Cookies();
 
 const $host = axios.create(
     {

@@ -6,9 +6,9 @@ import ApiError from "../error/ApiError";
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
-const generateToken = (id: number, email: string, nickname: string) => {
+const generateToken = (id: number, email: string) => {
     return jwt.sign(
-        {id, email, nickname},
+        {id, email},
         process.env.SECRET_KEY,
         {expiresIn: '24h'}
     )
@@ -20,9 +20,6 @@ const checkEmail = (email: string) => {
     return email.match(emailRegex)
 }
 
-const checkNickname = (nickname: string) => {
-    return nickname.length >= 3 && nickname.length <= 20 && !nickname.includes(" ");
-}
 
 const checkPassword = (password: string) => {
     return password.length >= 3 && password.length <= 20;
@@ -33,9 +30,9 @@ class UserController {
     async registration(req: Request, res: Response, next: NextFunction) {
         try {
             console.log('registration')
-            const {email, nickname, password} = req.body
+            const {email, password} = req.body
 
-            if (!email || !nickname || !password) {
+            if (!email  || !password) {
                 return next(ApiError.badRequest('Incorrect e-mail, nickname or password!'))
             }
 
@@ -43,11 +40,6 @@ class UserController {
                 return next(ApiError.badRequest('Incorrect e-mail!'))
             }
 
-            if (!checkNickname(nickname)) {
-                return next(ApiError.badRequest('Incorrect nickname!\n' +
-                    "Nickname length must be between 3 and 20.\n" +
-                    "Nickname cannot contains whitespace."))
-            }
 
             if (!checkPassword(password)) {
                 return next(ApiError.badRequest('Incorrect password!\n' +
@@ -59,14 +51,10 @@ class UserController {
                 return next(ApiError.badRequest('User with this e-mail already exists!'))
             }
 
-            const sameNickname = await User.findOne({where: {nickname: nickname}})
-            if (sameNickname) {
-                return next(ApiError.badRequest('User with this nickname already exists!'))
-            }
 
             const hashPassword = await bcrypt.hash(password, 8)
-            const user = await User.create({email: email, nickname: nickname, password: hashPassword})
-            const token = generateToken(user.id, user.email, user.nickname)
+            const user = await User.create({email: email, password: hashPassword})
+            const token = generateToken(user.id, user.email)
             return res.json({token})
         } catch (e) {
             return next(e)
@@ -95,7 +83,7 @@ class UserController {
                 }
             })
 
-            const token = generateToken(user.id, user.email, user.nickname)
+            const token = generateToken(user.id, user.email)
             return res.json({token})
         } catch (e) {
             return next(e)
@@ -123,70 +111,12 @@ class UserController {
         try {
             console.log('auth')
 
-            const token = generateToken(req.user.id, req.user.email, req.user.nickname)
+            const token = generateToken(req.user.id, req.user.email)
 
             return res.json({token})
         } catch (e) {
             return next(e)
         }
-    }
-
-    async getAll(req: Request, res: Response, next: NextFunction) {
-        try {
-            console.log("get-all")
-            const users = await User.findAll()
-            const usersJSON = JSON.stringify(users.map(it => JSON.stringify({
-                email: it.email,
-                nickname: it.nickname
-            })))
-
-            return res.json({message: 'Get is successful', users: usersJSON})
-        } catch (e) {
-            return next(e)
-        }
-    }
-
-
-    async update(req: Request, res: Response, next: NextFunction) {
-        try {
-            console.log('update')
-            const {email, nickname} = req.body
-
-            if (!email || !nickname) {
-                return next(ApiError.badRequest('Incorrect e-mail, nickname or password!'))
-            }
-
-            if (!checkEmail(email)) {
-                return next(ApiError.badRequest('Incorrect e-mail!'))
-            }
-
-            if (!checkNickname(nickname)) {
-                return next(ApiError.badRequest('Incorrect nickname!\n' +
-                    "Nickname length must be between 3 and 20.\n" +
-                    "Nickname cannot contains whitespace."))
-            }
-
-            const currentUser = await User.findOne({where: {email: email}})
-            if (!currentUser) {
-                return next(ApiError.badRequest('User with this e-mail does not exist!'))
-            }
-
-            const sameNickname = await User.findOne({where: {nickname: nickname}})
-            if (sameNickname && currentUser.nickname !== nickname) {
-                return next(ApiError.badRequest('User with this nickname already exists!'))
-            }
-
-            await User.update({
-                nickname: nickname,
-            }, {where: {email: email}})
-
-            const user = await User.findOne({where: {email}})
-            const token = generateToken(user.id, user.email, user.nickname)
-            return res.json({token})
-        } catch (e) {
-            return next(e)
-        }
-
     }
 }
 

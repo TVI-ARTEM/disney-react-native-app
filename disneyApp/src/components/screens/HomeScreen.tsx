@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {
-    ActivityIndicator,
+    ActivityIndicator, BackHandler,
     Button,
     FlatList,
     Image, ImageBackground,
@@ -35,6 +35,7 @@ export default function HomeScreen({}) {
     const [specificCharacter, setSpecificCharacter] = useState(false)
     const navigation = useNavigation<homeScreenProp>()
     const route = useRoute<homeScreenRouteProp>()
+    const [names, setNames] = useState<string[]>([])
     const {name} = route.params
 
     const Item = ({id, name, imageUrl, appearance}: ItemProps) => (
@@ -64,6 +65,18 @@ export default function HomeScreen({}) {
     }
 
     useEffect(() => {
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            if (names.length > 0) {
+                const prevName = names.pop()
+                setNames(names)
+                navigation.navigate(HOME_SCREEN, {name: prevName as string})
+            }
+            return true
+        })
+        return () => backHandler.remove()
+    }, [])
+
+    useEffect(() => {
         setDownloading(true)
         getCharacters(page, pageSize).then(data => {
             setCharacters(toSet(characters, data.data))
@@ -76,6 +89,7 @@ export default function HomeScreen({}) {
 
     useEffect(() => {
         setDownloading(true)
+        setNames([...names, name])
         if (name !== "") {
             getFilteredCharacter(name).then(data => {
                 if (data.count === 0) {
@@ -96,7 +110,16 @@ export default function HomeScreen({}) {
             })
         } else {
             setCharacters([])
-            setPage(1)
+            if (page === 1) {
+                getCharacters(page, pageSize).then(data => {
+                    setCharacters(data.data)
+                    setCount(data.count)
+                    setDownloading(false)
+                    setSpecificCharacter(false)
+                }).catch(error => console.log(error.response.data))
+            } else {
+                setPage(1)
+            }
         }
     }, [name])
 
