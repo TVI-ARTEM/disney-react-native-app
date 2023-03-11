@@ -4,7 +4,6 @@ import {
     Image,
     ImageBackground,
     ScrollView,
-    StatusBar,
     StyleSheet,
     Text,
     View
