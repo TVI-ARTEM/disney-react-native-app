@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {
-    ActivityIndicator,
+    ActivityIndicator, BackHandler,
     Image,
     ImageBackground,
     ScrollView,
@@ -40,6 +40,17 @@ export default function CharacterScreen() {
             navigation.navigate(HOME_SCREEN, {name})
         })
     }, [])
+
+
+    useEffect(() => {
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            navigation.goBack()
+            return true
+        })
+        return () => backHandler.remove()
+    }, [])
+
+
     return (
         <SafeAreaView style={styles.container}>
             <ImageBackground source={require('../images/DisneyBackground.png')} resizeMode={"cover"}

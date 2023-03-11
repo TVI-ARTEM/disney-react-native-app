@@ -30,9 +30,10 @@ export const getFilteredCharacter = async (name: string) => {
     const {data} = await axios.get(BASE_URL_FILTERED_CHARACTER, {params: {name: paramName}})
     const characters = (data.data as []).map(it => it as Character)
 
+
     return {
         data: characters,
-        count: data.data.count
+        count: data.count
     }
 }
 

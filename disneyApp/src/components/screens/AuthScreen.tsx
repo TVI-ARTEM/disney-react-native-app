@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {
     Button,
     ImageBackground,
@@ -11,6 +11,7 @@ import {useNavigation} from "@react-navigation/native";
 import {StackNavigationProp} from "@react-navigation/stack";
 import {StackParamList} from "./Navigation";
 import {HOME_SCREEN} from "./routes";
+import {check, login, registration} from "../../http/serverAPI/userApi";
 
 
 type authScreenProp = StackNavigationProp<StackParamList, `Auth`>;
@@ -20,6 +21,15 @@ export default function AuthScreen() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const navigation = useNavigation<authScreenProp>()
+
+    useEffect(() => {
+        check().then(() => {
+            navigation.navigate(HOME_SCREEN, {name: ""})
+        }).catch(err => {
+            console.log(err.response.data.message)
+        })
+
+    }, [])
 
     return (
         <SafeAreaView style={styles.container}>
@@ -40,8 +50,19 @@ export default function AuthScreen() {
                                style={{marginBottom: 25, ...styles.input}}
                     />
                     <View style={{width: "50%"}}>
-                        <Button title={"Login"} onPress={() => {
-                            navigation.navigate(HOME_SCREEN, {name: ""})
+                        <Button title={"Sign In"} onPress={() => {
+                            login(email, password).then(data => {
+                                navigation.navigate(HOME_SCREEN, {name: ""})
+                            }).catch(error => console.log(error.response.data))
+                        }
+                        }/>
+                    </View>
+
+                    <View style={{width: "50%"}}>
+                        <Button title={"Sign Up"} onPress={() => {
+                            registration(email, password).then(data => {
+                                navigation.navigate(HOME_SCREEN, {name: ""})
+                            }).catch(error => console.log(error.response.data))
                         }
                         }/>
                     </View>

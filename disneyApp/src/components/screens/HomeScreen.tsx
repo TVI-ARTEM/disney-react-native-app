@@ -66,8 +66,9 @@ export default function HomeScreen({}) {
 
     useEffect(() => {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-            if (names.length > 0) {
-                const prevName = names.pop()
+            if (names.length > 1) {
+                names.pop()
+                const prevName = name.at(-1)
                 setNames(names)
                 navigation.navigate(HOME_SCREEN, {name: prevName as string})
             }
@@ -87,18 +88,28 @@ export default function HomeScreen({}) {
     }, [page, pageSize])
 
 
+    function initializedAgain() {
+        setCharacters([])
+        if (page === 1) {
+            getCharacters(page, pageSize).then(data => {
+                setCharacters(data.data)
+                setCount(data.count)
+                setDownloading(false)
+                setSpecificCharacter(false)
+            }).catch(error => console.log(error.response.data))
+        } else {
+            setPage(1)
+        }
+    }
+
     useEffect(() => {
-        setDownloading(true)
+        console.log(name)
         setNames([...names, name])
+        setDownloading(true)
         if (name !== "") {
             getFilteredCharacter(name).then(data => {
-                if (data.count === 0) {
-                    getCharacters(page, pageSize).then(data => {
-                        setCharacters(data.data)
-                        setCount(data.count)
-                        setDownloading(false)
-                        setSpecificCharacter(false)
-                    }).catch(error => console.log(error.response.data))
+                if (data.count === 0 || data.count === undefined) {
+                    initializedAgain()
                 } else {
                     setCharacters(data.data)
                     setSpecificCharacter(true)
@@ -109,19 +120,11 @@ export default function HomeScreen({}) {
                 navigation.navigate(HOME_SCREEN, {name: ""})
             })
         } else {
-            setCharacters([])
-            if (page === 1) {
-                getCharacters(page, pageSize).then(data => {
-                    setCharacters(data.data)
-                    setCount(data.count)
-                    setDownloading(false)
-                    setSpecificCharacter(false)
-                }).catch(error => console.log(error.response.data))
-            } else {
-                setPage(1)
-            }
+            initializedAgain();
         }
     }, [name])
+
+    useEffect(() => console.log(names),[names])
 
     return (
         <SafeAreaView style={styles.container}>
