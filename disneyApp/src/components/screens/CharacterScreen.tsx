@@ -17,7 +17,8 @@ import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
 import {Character} from "../../models/character";
 import {getCharacter} from "../../http/disneyAPI/disneyApi";
 import SafeAreaView from "react-native-safe-area-view";
-// import {FAB, Icon} from "react-native-elements";
+import { FAB, Icon } from '@rneui/themed';
+
 
 
 type characterScreenProp = StackNavigationProp<StackParamList, `Character`>;
@@ -115,39 +116,39 @@ export default function CharacterScreen() {
 
                 </View>
 
-                {/*<FAB style={{*/}
-                {/*    position: "absolute",*/}
-                {/*    alignSelf: "flex-end",*/}
-                {/*    marginHorizontal: 10,*/}
-                {/*    end: 10,*/}
-                {/*    top: 20,*/}
-                {/*    justifyContent: "flex-end"*/}
-                {/*}}*/}
-                {/*     onPress={() => {*/}
-                {/*     }*/}
-                {/*     }*/}
+                <FAB style={{
+                    position: "absolute",
+                    alignSelf: "flex-end",
+                    marginHorizontal: 10,
+                    end: 10,
+                    top: 20,
+                    justifyContent: "flex-end"
+                }}
+                     onPress={() => {
+                     }
+                     }
 
-                {/*     icon={<Icon name={"star"} color={"white"}/>}*/}
-                {/*     color={"#ff494d"}*/}
+                     icon={<Icon name={"star"} color={"white"}/>}
+                     color={"#ff494d"}
 
-                {/*/>*/}
-                {/*<FAB style={{*/}
-                {/*    position: "absolute",*/}
-                {/*    alignSelf: "flex-end",*/}
-                {/*    marginHorizontal: 10,*/}
-                {/*    end: 10,*/}
-                {/*    top: 90,*/}
+                />
+                <FAB style={{
+                    position: "absolute",
+                    alignSelf: "flex-end",
+                    marginHorizontal: 10,
+                    end: 10,
+                    top: 90,
 
-                {/*    justifyContent: "flex-end"*/}
-                {/*}}*/}
-                {/*     onPress={() => {*/}
-                {/*     }*/}
-                {/*     }*/}
+                    justifyContent: "flex-end"
+                }}
+                     onPress={() => {
+                     }
+                     }
 
-                {/*     icon={<Icon name={"edit"} color={"white"}/>}*/}
-                {/*     color={"#ff494d"}*/}
-                {/*>*/}
-                {/*</FAB>*/}
+                     icon={<Icon name={"edit"} color={"white"}/>}
+                     color={"#ff494d"}
+                >
+                </FAB>
             </ImageBackground>
 
         </SafeAreaView>

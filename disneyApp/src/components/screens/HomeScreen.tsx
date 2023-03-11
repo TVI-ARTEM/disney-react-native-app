@@ -103,7 +103,6 @@ export default function HomeScreen({}) {
     }
 
     useEffect(() => {
-        console.log(name)
         setNames([...names, name])
         setDownloading(true)
         if (name !== "") {
@@ -124,7 +123,6 @@ export default function HomeScreen({}) {
         }
     }, [name])
 
-    useEffect(() => console.log(names),[names])
 
     return (
         <SafeAreaView style={styles.container}>
