@@ -24,7 +24,6 @@ type homeScreenRouteProp = RouteProp<StackParamList, `Home`>;
 
 type ItemProps = { id: number, name: string, imageUrl: string, appearance: string[] }
 
-const imageBackground = require('../images/DisneyBackground.png')
 
 export default function HomeScreen({}) {
     const [characters, setCharacters] = useState<Character[]>([])

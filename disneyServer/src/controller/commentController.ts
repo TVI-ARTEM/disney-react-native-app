@@ -29,8 +29,10 @@ class CommentController {
 
     async getComments(req: Request, res: Response, next: NextFunction) {
         try {
-            console.log('create-group')
+            console.log('get-comments')
             const {email, id} = req.query
+            console.log(email)
+            console.log(id)
 
             if (!email || !id) {
                 return next(ApiError.badRequest('Incorrect e-mail or id!'))

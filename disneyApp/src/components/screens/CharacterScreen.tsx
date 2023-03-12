@@ -1,42 +1,131 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {
-    ActivityIndicator, BackHandler,
+    ActivityIndicator, BackHandler, Button, FlatList,
     Image,
     ImageBackground,
     ScrollView,
     StyleSheet,
-    Text,
+    Text, TextInput, TouchableOpacity,
     View
 } from "react-native";
 
 import {StackNavigationProp} from "@react-navigation/stack";
 import {StackParamList} from "./Navigation";
-import {HOME_SCREEN} from "./routes";
+import {AUTH_SCREEN, CHARACTER_SCREEN, HOME_SCREEN} from "./routes";
 import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
 import {Character} from "../../models/character";
 import {getCharacter} from "../../http/disneyAPI/disneyApi";
 import SafeAreaView from "react-native-safe-area-view";
-import {FAB, Icon} from '@rneui/themed';
+import {BottomSheet, FAB} from '@rneui/themed';
+import {Icon} from "@rneui/base";
+
+import {
+    addGroupCharacter,
+    createComment,
+    createGroup, getComments,
+    getGroupCharacters,
+    getGroups
+} from "../../http/serverAPI/characterApi";
+import {UserContext} from "../../providers/UserProvider";
+import {Group} from "../../models/group";
+import {GroupCharacter} from "../../models/groupCharacter";
+import {Comment} from "../../models/comment";
 
 
 type characterScreenProp = StackNavigationProp<StackParamList, `Character`>;
 type characterScreenRouteProp = RouteProp<StackParamList, `Character`>;
+
+type ItemProps = { group: Group, character: Character }
+
+
+const GroupItem = ({group, character}: ItemProps) => {
+    const [visible, setVisible] = useState(false)
+    const [contains, setContains] = useState(false)
+    const [characters, setCharacters] = useState<GroupCharacter[]>([])
+    const {user} = useContext(UserContext)
+    useEffect(() => {
+        getGroupCharacters(user.email, group.name)
+            .then(data => {
+                for (const char of data.groups) {
+                    if (char.characterId === character._id) {
+                        setContains(true)
+                        break
+                    }
+                }
+
+                setCharacters(data.groups)
+            })
+            .catch(error => {
+                console.log(error.response.data)
+            })
+    }, [])
+
+
+    return <View style={styles.item}>
+        <TouchableOpacity onPress={() => setVisible(!visible)}>
+            <View>
+                <Text style={{...styles.name, color: "black"}}>{group.name}</Text>
+            </View>
+        </TouchableOpacity>
+        {visible && (
+            <>
+                {
+                    characters.map((item, index) => (
+                        <Text style={{...styles.others, color: "black", marginHorizontal: 15, margin: 5}}
+                              key={index}>{item.characterName}</Text>
+                    ))
+
+                }
+
+                {
+                    !contains && (
+                        <View style={{flex: 1, alignItems: "center", margin: 15}}>
+                            <View style={{width: "50%"}}>
+                                <Button
+                                    onPress={() => addGroupCharacter(user.email, group.name, character._id, character.name)
+                                        .then(data => {
+                                            setCharacters([...characters, data.group])
+                                            setContains(true)
+                                        })
+                                        .catch(error => console.log(error.response.data))
+                                    }
+                                    title={"Add"}/>
+                            </View>
+
+                        </View>
+                    )
+                }
+            </>
+
+
+        )
+        }
+
+    </View>
+}
 
 
 export default function CharacterScreen() {
     const navigation = useNavigation<characterScreenProp>()
     const route = useRoute<characterScreenRouteProp>()
     const {id} = route.params
+    const {user} = useContext(UserContext)
     const [character, setCharacter] = useState<Character>({} as Character)
     const [initialized, setInitialized] = useState(false)
-    const name = ""
+    const [groupVisible, setGroupVisible] = useState(false);
+    const [commentVisible, setCommentVisible] = useState(false);
+    const [groups, setGroups] = useState<Group[]>([])
+    const [comments, setComments] = useState<Comment[]>([])
+    const [newGroupName, setNewGroupName] = useState("")
+    const [newComment, setNewComment] = useState("")
+
     useEffect(() => {
         getCharacter(id).then(data => {
             setCharacter(data)
             setInitialized(true)
         }).catch(error => {
             console.log(error.response.data)
-            navigation.navigate(HOME_SCREEN, {name})
+            navigation.navigate(HOME_SCREEN, {name: ""})
         })
     }, [])
 
@@ -48,6 +137,27 @@ export default function CharacterScreen() {
         })
         return () => backHandler.remove()
     }, [])
+
+    useEffect(() => {
+        getGroups(user.email).then(data => {
+            setGroups(data.groups)
+        }).catch(error => {
+            console.log(error.response.data)
+            navigation.navigate(HOME_SCREEN, {name: ""})
+        })
+    }, [])
+
+    useEffect(() => {
+        if (!initialized) {
+            return
+        }
+        getComments(user.email, character._id).then(data => {
+            setComments(data.groups)
+        }).catch(error => {
+            console.log(error.response.data)
+            navigation.navigate(HOME_SCREEN, {name: ""})
+        })
+    }, [initialized])
 
 
     return (
@@ -123,6 +233,7 @@ export default function CharacterScreen() {
                     justifyContent: "flex-end"
                 }}
                      onPress={() => {
+                         setGroupVisible(true)
                      }
                      }
 
@@ -140,6 +251,7 @@ export default function CharacterScreen() {
                     justifyContent: "flex-end"
                 }}
                      onPress={() => {
+                         setCommentVisible(true)
                      }
                      }
 
@@ -147,6 +259,145 @@ export default function CharacterScreen() {
                      color={"#ff494d"}
                 >
                 </FAB>
+
+
+                <BottomSheet modalProps={{}} isVisible={groupVisible} onBackdropPress={() => setGroupVisible(false)}
+                             containerStyle={{
+                                 backgroundColor: "transparent",
+                                 maxHeight: "30%",
+                                 bottom: "70%",
+                                 borderTopLeftRadius: 25,
+                                 borderTopRightRadius: 25,
+                             }}
+
+
+                             scrollViewProps={{nestedScrollEnabled: true}}
+                >
+                    <View style={{
+                        backgroundColor: "white",
+                        borderTopLeftRadius: 25,
+                        borderTopRightRadius: 25,
+                    }}>
+                        <View style={{
+                            margin: 10,
+                            flexDirection: "row",
+                            gap: 5,
+                            alignContent: "center",
+                            marginTop: 25,
+                            justifyContent: "center"
+                        }}>
+                            <TextInput value={newGroupName} onChangeText={setNewGroupName}
+                                       placeholder={"Enter group name"}
+                                       maxLength={20}
+                                       style={{
+                                           fontSize: 20,
+                                           borderStyle: "solid",
+                                           borderWidth: 2,
+                                           width: "55%",
+                                           paddingHorizontal: 5,
+                                           borderRadius: 10
+                                       }}
+                            />
+                            <View style={{width: "25%"}}>
+                                <Button title={"Add"}
+                                        onPress={() => createGroup(user.email, newGroupName)
+                                            .then(data => {
+                                                setGroups([...groups, data.group])
+                                            })
+                                            .catch(error => console.log(error.response.data))
+                                        }/>
+                            </View>
+
+                        </View>
+
+                        <View>
+                            {
+                                groups.map((item, index) => (
+                                    <GroupItem group={item} character={character} key={index}/>
+                                ))
+                            }
+                        </View>
+
+
+                    </View>
+
+
+                </BottomSheet>
+
+                <BottomSheet modalProps={{}} isVisible={commentVisible} onBackdropPress={() => setCommentVisible(false)}
+                             containerStyle={{
+                                 backgroundColor: "transparent",
+                                 maxHeight: "30%",
+                                 bottom: "70%",
+                                 borderTopLeftRadius: 25,
+                                 borderTopRightRadius: 25,
+                             }}
+
+                             scrollViewProps={{nestedScrollEnabled: true}}
+                >
+                    <View style={{
+                        backgroundColor: "white",
+                        alignContent: "center",
+                        justifyContent: "center",
+                        borderTopLeftRadius: 25,
+                        borderTopRightRadius: 25,
+                    }}>
+                        <View style={{
+                            margin: 10,
+                            gap: 5,
+                            alignContent: "center",
+                            marginTop: 25,
+                            justifyContent: "center"
+                        }}>
+                            <TextInput value={newComment} onChangeText={setNewComment}
+                                       placeholder={"Type Comment"}
+                                       multiline={true}
+                                       numberOfLines={5}
+                                       style={{
+                                           fontSize: 20,
+                                           borderStyle: "solid",
+                                           borderWidth: 2,
+                                           width: "80%",
+                                           alignSelf: "center",
+                                           paddingHorizontal: 5,
+                                           borderRadius: 10
+                                       }}
+                            />
+                            <View style={{width: "25%", alignSelf: "center"}}>
+                                <Button title={"Add"}
+                                        onPress={() =>
+                                            createComment(user.email, newComment, character._id)
+                                                .then(data => {
+                                                    setComments([...comments, data.group])
+                                                })
+                                                .catch(error => console.log(error.response.data))
+                                        }/>
+                            </View>
+
+                        </View>
+
+                        <View>
+                            {
+                                comments.map((item, index) => (
+                                    <Text
+                                        style={{
+                                            ...styles.others,
+                                            color: "black",
+                                            marginHorizontal: 15,
+                                            margin: 5
+                                        }}
+                                        key={index}
+                                    >{item.comment}</Text>
+                                ))
+                            }
+                        </View>
+
+
+                    </View>
+
+
+                </BottomSheet>
+
             </ImageBackground>
 
         </SafeAreaView>
@@ -162,7 +413,8 @@ const styles = StyleSheet.create({
         padding: 5,
         flexDirection: "column",
         borderRadius: 5,
-        backgroundColor: `rgba(0, 0, 0, 0.5)`
+        paddingHorizontal: 10,
+        margin: 5
     },
     name: {
         fontSize: 18,
@@ -171,12 +423,14 @@ const styles = StyleSheet.create({
         alignContent: "flex-start",
         color: "white"
     },
+
     others: {
         fontSize: 18,
         marginStart: 5,
         alignContent: "flex-start",
         color: "rgb(245, 245, 245)"
     },
+
     logo: {
         margin: 5,
         width: "95%",

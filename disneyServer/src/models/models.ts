@@ -17,7 +17,8 @@ export const Group = sequelize.define('group', {
 
 export const GroupCharacters = sequelize.define('groupUser', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    characterId: {type: DataTypes.INTEGER}
+    characterId: {type: DataTypes.INTEGER},
+    characterName: {type: DataTypes.STRING}
 })
 
 
@@ -39,6 +40,6 @@ Comment.belongsTo(User)
 module.exports = {
     User,
     Group,
-    GroupUser: GroupCharacters,
+    GroupCharacters,
     Comment
 }

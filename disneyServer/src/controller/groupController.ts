@@ -49,6 +49,35 @@ class GroupController {
         }
     }
 
+    async addGroupCharacter(req: Request, res: Response, next: NextFunction) {
+        try {
+            console.log('add-group-character')
+            const {email, group, id, name} = req.body
+
+            if (!email || !group || !id || !name) {
+                return next(ApiError.badRequest('Incorrect e-mail, group, id or name!'))
+            }
+
+
+            const user = await User.findOne({where: {email: email}})
+            if (!user) {
+                return next(ApiError.badRequest('User is not found!'))
+            }
+
+            const groupEntity = await Group.findOne({where: {name: group, userId: user.id}})
+            if (!groupEntity) {
+                return next(ApiError.badRequest('Group is not found!'))
+            }
+
+            const newGroup = await GroupCharacters.create({groupId: groupEntity.id, characterName: name, characterId: id})
+
+
+            return res.json({group: newGroup})
+        } catch (e) {
+            return next(e)
+        }
+    }
+
     async getGroupCharacters(req: Request, res: Response, next: NextFunction) {
         try {
             console.log('get-group-characters')
@@ -68,7 +97,6 @@ class GroupController {
             if (!groupEntity) {
                 return next(ApiError.badRequest('Group is not found!'))
             }
-
 
             const characters = await GroupCharacters.findAll({where: {groupId: groupEntity.id}})
 
