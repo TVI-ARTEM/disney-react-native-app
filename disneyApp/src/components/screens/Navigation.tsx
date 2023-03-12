@@ -3,9 +3,12 @@ import {NavigationContainer} from "@react-navigation/native";
 import HomeScreen from "./HomeScreen";
 import CharacterScreen from "./CharacterScreen";
 import {AUTH_SCREEN, CHARACTER_SCREEN, HOME_SCREEN} from "./routes";
-import {Button, TextInput, View} from "react-native";
-import React, {useState} from "react";
+import {Button, TextInput, TouchableOpacity, View} from "react-native";
+import React, {useContext, useState} from "react";
 import AuthScreen from "./AuthScreen";
+import {Icon} from "@rneui/base";
+import {logout} from "../../http/serverAPI/userApi";
+import {UserContext} from "../../providers/UserProvider";
 
 
 export type StackParamList = {
@@ -18,7 +21,7 @@ const Stack = createStackNavigator<StackParamList>();
 
 export default function Navigation() {
     const [searchText, setSearchText] = useState("")
-
+    const {user, setUser} = useContext(UserContext)
     return (
         <NavigationContainer>
             <Stack.Navigator>
@@ -28,7 +31,7 @@ export default function Navigation() {
                     options={{headerShown: true, headerTitle: "Disney"}}
                 />
                 <Stack.Group screenOptions={({navigation}) => ({
-                    headerRight: () => <View style={{marginEnd: 10, flexDirection: "row", gap: 5}}>
+                    headerLeft: () => <View style={{marginStart: 10, flexDirection: "row", gap: 5}}>
                         <TextInput value={searchText} onChangeText={setSearchText}
                                    placeholder={"Enter character name"}
                                    maxLength={20}
@@ -45,10 +48,20 @@ export default function Navigation() {
                         }
                         }/>
                     </View>,
-                    headerLeft: () => null
+                    headerRight: () =>
+                        <TouchableOpacity
+                            onPress={() =>
+                                logout(user.email)
+                                    .catch(error => console.log(error.response.data))
+                                    .finally(() => {
+                                        setUser({email: ""})
+                                        navigation.navigate(AUTH_SCREEN)
+                                    })}>
+                            <Icon name={"logout"} style={{marginEnd: 10}}/>
+                        </TouchableOpacity>
                 })}>
                     <Stack.Screen name={HOME_SCREEN} component={HomeScreen} options={{
-                        headerShown: true, headerTitle: "Disney",
+                        headerShown: true, headerTitle: "",
                     }}
                                   initialParams={{name: ""}}
                     />

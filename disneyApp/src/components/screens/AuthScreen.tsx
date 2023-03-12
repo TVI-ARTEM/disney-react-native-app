@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {
     Button,
     ImageBackground,
@@ -12,6 +12,8 @@ import {StackNavigationProp} from "@react-navigation/stack";
 import {StackParamList} from "./Navigation";
 import {HOME_SCREEN} from "./routes";
 import {check, login, registration} from "../../http/serverAPI/userApi";
+import {UserContext} from "../../providers/UserProvider";
+import {User} from "../../models/user";
 
 
 type authScreenProp = StackNavigationProp<StackParamList, `Auth`>;
@@ -21,9 +23,11 @@ export default function AuthScreen() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const navigation = useNavigation<authScreenProp>()
+    const {setUser} = useContext(UserContext)
 
     useEffect(() => {
-        check().then(() => {
+        check().then(data => {
+            setUser(data as User)
             navigation.navigate(HOME_SCREEN, {name: ""})
         }).catch(err => {
             console.log(err.response.data.message)

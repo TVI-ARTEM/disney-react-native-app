@@ -25,8 +25,11 @@ export const login = async (email: string, password: string) => {
 
 export const logout = async (email: string) => {
     console.log('logout')
-    await $authHost.post(API_USER_LOGOUT as string, {email: email})
-    await storeData(TOKEN_STORAGE_NAME, "")
+    try {
+        await $authHost.post(API_USER_LOGOUT as string, {email: email})
+    } finally {
+        await storeData(TOKEN_STORAGE_NAME, "")
+    }
 }
 
 export const check = async () => {

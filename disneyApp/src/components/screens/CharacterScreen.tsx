@@ -16,8 +16,7 @@ import {RouteProp, useNavigation, useRoute} from "@react-navigation/native";
 import {Character} from "../../models/character";
 import {getCharacter} from "../../http/disneyAPI/disneyApi";
 import SafeAreaView from "react-native-safe-area-view";
-import { FAB, Icon } from '@rneui/themed';
-
+import {FAB, Icon} from '@rneui/themed';
 
 
 type characterScreenProp = StackNavigationProp<StackParamList, `Character`>;
