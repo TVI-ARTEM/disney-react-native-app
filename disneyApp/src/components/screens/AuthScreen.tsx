@@ -30,7 +30,7 @@ export default function AuthScreen() {
             setUser(data as User)
             navigation.navigate(HOME_SCREEN, {name: ""})
         }).catch(err => {
-            console.log(err.response.data.message)
+            console.log(err)
         })
 
     }, [])
@@ -58,7 +58,7 @@ export default function AuthScreen() {
                             login(email, password).then(data => {
                                 setUser(data as User)
                                 navigation.navigate(HOME_SCREEN, {name: ""})
-                            }).catch(error => console.log(error.response.data))
+                            }).catch(error => console.log(error))
                         }
                         }/>
                     </View>
@@ -68,7 +68,7 @@ export default function AuthScreen() {
                             registration(email, password).then(data => {
                                 setUser(data as User)
                                 navigation.navigate(HOME_SCREEN, {name: ""})
-                            }).catch(error => console.log(error.response.data))
+                            }).catch(error => console.log(error))
                         }
                         }/>
                     </View>

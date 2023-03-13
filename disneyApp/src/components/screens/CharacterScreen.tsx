@@ -56,7 +56,7 @@ const GroupItem = ({group, character}: ItemProps) => {
                 setCharacters(data.groups)
             })
             .catch(error => {
-                console.log(error.response.data)
+                console.log(error)
             })
     }, [])
 
@@ -87,7 +87,7 @@ const GroupItem = ({group, character}: ItemProps) => {
                                             setCharacters([...characters, data.group])
                                             setContains(true)
                                         })
-                                        .catch(error => console.log(error.response.data))
+                                        .catch(error => console.log(error))
                                     }
                                     title={"Add"}/>
                             </View>
@@ -124,7 +124,7 @@ export default function CharacterScreen() {
             setCharacter(data)
             setInitialized(true)
         }).catch(error => {
-            console.log(error.response.data)
+            console.log(error)
             navigation.navigate(HOME_SCREEN, {name: ""})
         })
     }, [])
@@ -142,7 +142,7 @@ export default function CharacterScreen() {
         getGroups(user).then(data => {
             setGroups(data.groups)
         }).catch(error => {
-            console.log(error.response.data)
+            console.log(error)
             navigation.navigate(HOME_SCREEN, {name: ""})
         })
     }, [])
@@ -154,7 +154,7 @@ export default function CharacterScreen() {
         getComments(user, character._id).then(data => {
             setComments(data.groups)
         }).catch(error => {
-            console.log(error.response.data)
+            console.log(error)
             navigation.navigate(HOME_SCREEN, {name: ""})
         })
     }, [initialized])
@@ -304,7 +304,7 @@ export default function CharacterScreen() {
                                             .then(data => {
                                                 setGroups([...groups, data.group])
                                             })
-                                            .catch(error => console.log(error.response.data))
+                                            .catch(error => console.log(error))
                                         }/>
                             </View>
 
@@ -370,7 +370,7 @@ export default function CharacterScreen() {
                                                 .then(data => {
                                                     setComments([...comments, data.group])
                                                 })
-                                                .catch(error => console.log(error.response.data))
+                                                .catch(error => console.log(error))
                                         }/>
                             </View>
 

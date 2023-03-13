@@ -83,7 +83,7 @@ export default function HomeScreen({}) {
             setCount(data.count)
             setDownloading(false)
             setSpecificCharacter(false)
-        }).catch(error => console.log(error.response.data))
+        }).catch(error => console.log(error))
     }, [page, pageSize])
 
 
@@ -95,7 +95,7 @@ export default function HomeScreen({}) {
                 setCount(data.count)
                 setDownloading(false)
                 setSpecificCharacter(false)
-            }).catch(error => console.log(error.response.data))
+            }).catch(error => console.log(error))
         } else {
             setPage(1)
         }
@@ -114,7 +114,7 @@ export default function HomeScreen({}) {
                     setDownloading(false)
                 }
             }).catch(error => {
-                console.log(error.response.data)
+                console.log(error)
                 navigation.navigate(HOME_SCREEN, {name: ""})
             })
         } else {
