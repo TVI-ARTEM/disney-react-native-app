@@ -56,6 +56,7 @@ export default function AuthScreen() {
                     <View style={{width: "50%"}}>
                         <Button title={"Sign In"} onPress={() => {
                             login(email, password).then(data => {
+                                setUser(data as User)
                                 navigation.navigate(HOME_SCREEN, {name: ""})
                             }).catch(error => console.log(error.response.data))
                         }
@@ -65,6 +66,7 @@ export default function AuthScreen() {
                     <View style={{width: "50%"}}>
                         <Button title={"Sign Up"} onPress={() => {
                             registration(email, password).then(data => {
+                                setUser(data as User)
                                 navigation.navigate(HOME_SCREEN, {name: ""})
                             }).catch(error => console.log(error.response.data))
                         }

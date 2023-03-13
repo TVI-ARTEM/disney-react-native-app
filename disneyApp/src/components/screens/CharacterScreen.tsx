@@ -44,7 +44,7 @@ const GroupItem = ({group, character}: ItemProps) => {
     const [characters, setCharacters] = useState<GroupCharacter[]>([])
     const {user} = useContext(UserContext)
     useEffect(() => {
-        getGroupCharacters(user.email, group.name)
+        getGroupCharacters(user, group)
             .then(data => {
                 for (const char of data.groups) {
                     if (char.characterId === character._id) {
@@ -82,7 +82,7 @@ const GroupItem = ({group, character}: ItemProps) => {
                         <View style={{flex: 1, alignItems: "center", margin: 15}}>
                             <View style={{width: "50%"}}>
                                 <Button
-                                    onPress={() => addGroupCharacter(user.email, group.name, character._id, character.name)
+                                    onPress={() => addGroupCharacter(user, group, character._id, character.name)
                                         .then(data => {
                                             setCharacters([...characters, data.group])
                                             setContains(true)
@@ -139,7 +139,7 @@ export default function CharacterScreen() {
     }, [])
 
     useEffect(() => {
-        getGroups(user.email).then(data => {
+        getGroups(user).then(data => {
             setGroups(data.groups)
         }).catch(error => {
             console.log(error.response.data)
@@ -151,7 +151,7 @@ export default function CharacterScreen() {
         if (!initialized) {
             return
         }
-        getComments(user.email, character._id).then(data => {
+        getComments(user, character._id).then(data => {
             setComments(data.groups)
         }).catch(error => {
             console.log(error.response.data)
@@ -300,7 +300,7 @@ export default function CharacterScreen() {
                             />
                             <View style={{width: "25%"}}>
                                 <Button title={"Add"}
-                                        onPress={() => createGroup(user.email, newGroupName)
+                                        onPress={() => createGroup(user, newGroupName)
                                             .then(data => {
                                                 setGroups([...groups, data.group])
                                             })
@@ -366,7 +366,7 @@ export default function CharacterScreen() {
                             <View style={{width: "25%", alignSelf: "center"}}>
                                 <Button title={"Add"}
                                         onPress={() =>
-                                            createComment(user.email, newComment, character._id)
+                                            createComment(user, newComment, character._id)
                                                 .then(data => {
                                                     setComments([...comments, data.group])
                                                 })
